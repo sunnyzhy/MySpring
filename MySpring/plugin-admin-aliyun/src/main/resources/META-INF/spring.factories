@@ -1,0 +1,2 @@
+#org.example.MessagePlugin=org.example.impl.AliyunMessage
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=org.example.impl.AliyunDemo

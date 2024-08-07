@@ -1,0 +1,26 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: plugin-demo
+  devtools:
+    restart:
+      enabled: true # 设置启用热部署
+      extra-paths: src/main/java # 重启目录
+      except: WEB-INF/**
+      exclude: "static/**,public/**" # 排除不需要自动重启的资源
+  thymeleaf:
+    cache: false # 使用 Thymeleaf 模板引擎，关闭缓存
+  targetUrl: file:/D:/JavaProject/MySpring/libs/plugin-admin-aliyun-1.0-SNAPSHOT.jar
+  pluginClass: org.example.impl.AliyunMessage
+
+plugin:
+  # 运行模式, 开发环境: dev; 生产环境: prod
+  runMode: dev
+  # 主程序包名, 包名建议设置到范围最大级别，能包含主程序所有类的包名范围
+  mainPackage: org.example
+  # 插件的路径, 可配置多个, 开发环境下配置为插件模块上级目录; 生产环境下配置到插件jar包存放目录。
+  # 可使用~符号表示相对目录，比如：~/plugins，开发环境相对于开发根目录，生产环境下相对于主程序jar所在目录
+  pluginPath:
+    - D:/JavaProject/MySpring/libs
+
