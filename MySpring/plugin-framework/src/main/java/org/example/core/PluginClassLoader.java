@@ -26,6 +26,7 @@ class PluginClassLoader extends URLClassLoader {
     }
 
     private static ClassLoader findParentClassLoader() {
+        // 使用自定义的 ClassLoader，避免使用 SystemClassLoader 加载 Class
         ClassLoader parent = Plugin.class.getClassLoader();
         if (parent == null) {
             parent = PluginClassLoader.class.getClassLoader();
@@ -34,6 +35,8 @@ class PluginClassLoader extends URLClassLoader {
             parent = ClassLoader.getSystemClassLoader();
         }
         return parent;
+
+//        return Thread.currentThread().getContextClassLoader();
     }
 
     @Override
@@ -41,12 +44,11 @@ class PluginClassLoader extends URLClassLoader {
         try {
             URLConnection urlConnection = url.openConnection();
             if (urlConnection instanceof JarURLConnection jarURLConnection) {
-                jarURLConnection.setUseCaches(true);
+//                jarURLConnection.setUseCaches(true);
                 jarFile = jarURLConnection.getJarFile();
-                log.info("加载插件完成: " + jarFile.getName());
             }
         } catch (Exception e) {
-            log.error("加载插件失败: " + url.toExternalForm());
+            log.error(e.getMessage(), e);
         }
         super.addURL(url);
     }

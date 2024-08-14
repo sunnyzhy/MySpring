@@ -16,6 +16,7 @@ public class AliyunMessage<T> implements MessagePlugin<T> {
         A2.print();
         new A3().print();
         try {
+            System.out.println("test aliyun");
             System.out.println("Aliyun send message: " + objectMapper.writeValueAsString(message));
         } catch (JsonProcessingException e) {
             e.printStackTrace();

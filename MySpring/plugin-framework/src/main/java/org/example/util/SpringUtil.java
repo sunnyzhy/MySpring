@@ -1,8 +1,10 @@
 package org.example.util;
 
 import lombok.Getter;
+import org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -12,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author zhy
@@ -38,6 +41,15 @@ public class SpringUtil implements ApplicationContextAware {
         return (DefaultListableBeanFactory) getApplicationContext().getAutowireCapableBeanFactory();
     }
 
+    public static void setProxyClassLoader(ClassLoader classLoader) {
+        List<BeanPostProcessor> postProcessors = getBeanFactory().getBeanPostProcessors();
+        for(BeanPostProcessor postProcessor : postProcessors) {
+            if(postProcessor instanceof AbstractAutoProxyCreator) {
+                ((AbstractAutoProxyCreator) postProcessor).setProxyClassLoader(classLoader);
+            }
+        }
+    }
+
     public static List<Map<String, Object>> getAllBean() {
         List<Map<String, Object>> list = new ArrayList<>();
         String[] beans = getApplicationContext()
@@ -60,9 +72,6 @@ public class SpringUtil implements ApplicationContextAware {
 
     public static String[] getDependentBeans(String name) {
         DefaultListableBeanFactory beanFactory = getBeanFactory();
-//        if (beanFactory.containsBeanDefinition(name)) {
-//            return new String[]{};
-//        }
         return beanFactory.getDependentBeans(name);
     }
 
@@ -72,8 +81,6 @@ public class SpringUtil implements ApplicationContextAware {
             beanFactory.destroySingleton(name);
         }
         if (beanFactory.containsBeanDefinition(name)) {
-            Object bean = beanFactory.getBean(name);
-            beanFactory.destroyBean(bean);
             beanFactory.removeBeanDefinition(name);
         }
     }

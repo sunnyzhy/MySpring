@@ -3,9 +3,7 @@ package org.example.core;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.example.util.SpringUtil;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 
@@ -48,6 +46,7 @@ public class Plugin {
             URL url = new URL("jar:file:" + file.getAbsolutePath() + "!/");
             classLoader.addURL(url);
             this.classLoader = classLoader;
+//            SpringUtil.setProxyClassLoader(classLoader);
             // 获取jar文件
             JarFile jarFile = classLoader.getJarFile();
             Enumeration<JarEntry> entries = jarFile.entries();
@@ -71,13 +70,14 @@ public class Plugin {
                     BeanDefinition beanDefinition = beanDefinitionBuilder.getRawBeanDefinition();
                     beanDefinition.setScope("singleton");
                     SpringUtil.registerBean(className, beanDefinition);
-                    log.info("注册bean:" + className);
+                    log.info("注册bean: " + className);
                 }
                 cacheClass.put(className, pluginInfo);
             }
+            log.info("加载插件完成: " + jarFile.getName());
             return true;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("加载插件失败: " + e.getMessage());
             return false;
         }
     }
@@ -151,88 +151,42 @@ public class Plugin {
         if (cacheClass.isEmpty()) {
             return;
         }
-        Map<String, String[]> dependentBeanMap = new HashMap<>();
-        for (Map.Entry<String, PluginInfo> entry : cacheClass.entrySet()) {
-            if (!entry.getValue().isSpringBeanClass) {
-                continue;
-            }
-            String key = entry.getKey();
-            String[] dependentBeans = SpringUtil.getDependentBeans(key);
-            dependentBeanMap.put(key, dependentBeans);
-        }
-        // 移除bean
-        while (!dependentBeanMap.isEmpty()) {
-            String beanName = null;
-            for (Map.Entry<String, String[]> entry : dependentBeanMap.entrySet()) {
-                beanName = findDeleteBeanName(entry.getKey(), dependentBeanMap);
-                if (beanName != null) {
-                    break;
-                }
-            }
-            if (beanName == null) {
-                continue;
-            }
-            // 移除dependentBeanMap里各项所依赖的beanName
-            Iterator<Map.Entry<String, String[]>> it = dependentBeanMap.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<String, String[]> next = it.next();
-                String[] value = next.getValue();
-                if (value.length == 0) {
+        while (!cacheClass.isEmpty()) {
+            Iterator<Map.Entry<String, PluginInfo>> iterator = cacheClass.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, PluginInfo> next = iterator.next();
+                String key = next.getKey();
+                PluginInfo pluginInfo = next.getValue();
+                if (!pluginInfo.isSpringBeanClass) {
+                    pluginInfo.clazz = null;
+                    pluginInfo.instance = null;
+                    iterator.remove();
                     continue;
                 }
-                String[] arr = new String[value.length - 1];
-                int delIndex = -1;
-                for (int i = 0; i < value.length; i++) {
-                    if (value[i].equals(beanName)) {
-                        delIndex = i;
+                String[] dependentBeans = SpringUtil.getDependentBeans(key);
+                Enumeration<String> keys = cacheClass.keys();
+                boolean exists = false;
+                while (keys.hasMoreElements()) {
+                    String s = keys.nextElement();
+                    if (key.equals(s)) {
+                        continue;
+                    }
+                    if (Arrays.stream(dependentBeans).anyMatch(x -> x.equals(s))) {
+                        exists = true;
                         break;
                     }
                 }
-                // 没有找到匹配的元素
-                if (delIndex == -1) {
-                    continue;
+                if (!exists) {
+                    // 从Spring容器里移除bean
+                    SpringUtil.removeBean(key);
+                    // 从cacheClass里删除beanName
+                    pluginInfo.clazz = null;
+                    pluginInfo.instance = null;
+                    iterator.remove();
+                    log.info("卸载bean: " + key);
                 }
-                for (int i = 0; i < delIndex; i++) {
-                    arr[i] = value[i];
-                }
-                for (int i = delIndex; i < value.length - 1; i++) {
-                    arr[i] = value[i + 1];
-                }
-                next.setValue(arr);
             }
-            // 从Spring容器里移除bean
-            SpringUtil.removeBean(beanName);
-            // 从dependentBeanMap里删除没有被依赖的beanName
-            dependentBeanMap.remove(beanName);
-            // 从cacheClass里删除beanName
-            PluginInfo pluginInfo = cacheClass.get(beanName);
-            pluginInfo.clazz = null;
-            pluginInfo.instance = null;
-            cacheClass.remove(beanName);
         }
-        // 移除普通类
-        if (cacheClass.isEmpty()) {
-            return;
-        }
-        Iterator<Map.Entry<String, PluginInfo>> iterator = cacheClass.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, PluginInfo> next = iterator.next();
-            PluginInfo pluginInfo = next.getValue();
-            pluginInfo.clazz = null;
-            pluginInfo.instance = null;
-            iterator.remove();
-        }
-    }
-
-    private String findDeleteBeanName(String name, Map<String, String[]> dependentBeanMap) {
-        String[] dependentBeanNames = dependentBeanMap.get(name);
-        if (dependentBeanNames.length == 0) {
-            return name;
-        }
-        for (String dependentBeanName : dependentBeanNames) {
-            return findDeleteBeanName(dependentBeanName, dependentBeanMap);
-        }
-        return null;
     }
 
     class PluginInfo {

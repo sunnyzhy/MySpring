@@ -1,5 +1,7 @@
 package org.example.impl;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.springframework.stereotype.Component;
 
 /**
@@ -16,5 +18,13 @@ public class TencentPrint {
 
     public void print(String s){
         System.out.println(s);
+    }
+    @PostConstruct
+    public void postConstruct(){
+        System.out.println("TencentPrint加载成功");
+    }
+    @PreDestroy
+    public void preDestroy() {
+        System.out.println("TencentPrint卸载成功");
     }
 }
