@@ -13,5 +13,6 @@ public class PluginDemoApp
     public static void main( String[] args )
     {
         SpringApplication.run(PluginDemoApp.class, args);
+        System.out.println("main");
     }
 }

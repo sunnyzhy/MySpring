@@ -4,8 +4,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.reflect.Modifier;
 import java.net.*;
@@ -59,28 +61,34 @@ class PluginClassLoader extends URLClassLoader {
         return super.findClass(name);
     }
 
-    protected boolean isSpringBeanClass(Class<?> clazz) {
+    protected ANNOTATION_ENUM getAnnotation(Class<?> clazz) {
         if (clazz == null) {
-            return false;
+            return ANNOTATION_ENUM.OTHER;
         }
         //是否是接口
         if (clazz.isInterface()) {
-            return false;
+            return ANNOTATION_ENUM.OTHER;
         }
         //是否是抽象类
         if (Modifier.isAbstract(clazz.getModifiers())) {
-            return false;
+            return ANNOTATION_ENUM.OTHER;
         }
         if (clazz.getAnnotation(Component.class) != null) {
-            return true;
+            return ANNOTATION_ENUM.COMPONENT;
         }
         if (clazz.getAnnotation(Repository.class) != null) {
-            return true;
+            return ANNOTATION_ENUM.REPOSITORY;
         }
         if (clazz.getAnnotation(Service.class) != null) {
-            return true;
+            return ANNOTATION_ENUM.SERVICE;
         }
-        return false;
+        if (clazz.getAnnotation(Controller.class) != null) {
+            return ANNOTATION_ENUM.CONTROLLER;
+        }
+        if (clazz.getAnnotation(RestController.class) != null) {
+            return ANNOTATION_ENUM.REST_CONTROLLER;
+        }
+        return ANNOTATION_ENUM.OTHER;
     }
 
 }

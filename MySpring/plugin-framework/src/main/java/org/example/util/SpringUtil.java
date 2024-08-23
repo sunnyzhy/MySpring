@@ -9,12 +9,14 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author zhy
@@ -43,8 +45,8 @@ public class SpringUtil implements ApplicationContextAware {
 
     public static void setProxyClassLoader(ClassLoader classLoader) {
         List<BeanPostProcessor> postProcessors = getBeanFactory().getBeanPostProcessors();
-        for(BeanPostProcessor postProcessor : postProcessors) {
-            if(postProcessor instanceof AbstractAutoProxyCreator) {
+        for (BeanPostProcessor postProcessor : postProcessors) {
+            if (postProcessor instanceof AbstractAutoProxyCreator) {
                 ((AbstractAutoProxyCreator) postProcessor).setProxyClassLoader(classLoader);
             }
         }
@@ -104,5 +106,16 @@ public class SpringUtil implements ApplicationContextAware {
 
     public static <T> T getBean(String name, Class<T> clazz) {
         return getApplicationContext().getBean(name, clazz);
+    }
+
+    public static void resolveController(String name) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        RequestMappingHandlerMapping handlerMapping = (RequestMappingHandlerMapping)getApplicationContext().getBean("requestMappingHandlerMapping");
+        // 注册Controller
+        Method method = handlerMapping.getClass()
+                .getSuperclass()
+                .getSuperclass()
+                .getDeclaredMethod("detectHandlerMethods", Object.class);
+        method.setAccessible(true);
+        method.invoke(handlerMapping, name);
     }
 }

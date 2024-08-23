@@ -61,7 +61,8 @@ public class Plugin {
                 Class<?> clazz = classLoader.findClass(className);
                 PluginInfo pluginInfo = new PluginInfo();
                 pluginInfo.clazz = clazz;
-                if (classLoader.isSpringBeanClass(clazz)) {
+                ANNOTATION_ENUM annotation = classLoader.getAnnotation(clazz);
+                if (annotation.isAnnotation()) {
                     if (SpringUtil.containsBean(className)) {
                         SpringUtil.removeBean(className);
                     }
@@ -70,6 +71,9 @@ public class Plugin {
                     BeanDefinition beanDefinition = beanDefinitionBuilder.getRawBeanDefinition();
                     beanDefinition.setScope("singleton");
                     SpringUtil.registerBean(className, beanDefinition);
+                    if (annotation == ANNOTATION_ENUM.CONTROLLER || annotation == ANNOTATION_ENUM.REST_CONTROLLER) {
+                        SpringUtil.resolveController(className);
+                    }
                     log.info("注册bean: " + className);
                 }
                 cacheClass.put(className, pluginInfo);

@@ -2,10 +2,9 @@ package org.example.controller;
 
 import org.example.model.MessageData;
 import org.example.service.PluginService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 /**
  * @author zhy
@@ -29,4 +28,5 @@ public class PluginController {
     public void unload(@PathVariable String type) {
         pluginService.unload(type);
     }
+
 }
