@@ -12,25 +12,27 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author zhy
  * @date 2024/7/31 14:24
- *
+ * <p>
  * 插件管理器
  */
 @Slf4j
 public class PluginManager {
-    private static File pluginDirectory;
+    private static String pluginPath;
     private static ConcurrentHashMap<String, Plugin> pluginMap = new ConcurrentHashMap<>();
 
     static {
         String currentPath = System.getProperty("user.dir");
-        pluginDirectory = new File(currentPath, "plugins");
+        pluginPath = currentPath + File.separator + "plugins";
     }
 
     /**
      * 加载插件
+     *
      * @param pluginName
      * @return
      */
     public static Plugin loadPlugin(String pluginName) {
+        File pluginDirectory = new File(pluginPath + File.separator + pluginName);
         if (!pluginDirectory.exists()) {
             log.warn("插件目录libs不存在");
             return null;
@@ -76,6 +78,7 @@ public class PluginManager {
 
     /**
      * 卸载插件
+     *
      * @param pluginName
      */
     public static void unloadPlugin(String pluginName) {

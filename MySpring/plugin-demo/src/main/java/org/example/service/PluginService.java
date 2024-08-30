@@ -24,6 +24,24 @@ import java.util.jar.JarFile;
 @Service
 @Slf4j
 public class PluginService {
+    public void all(MessageData messageData) {
+        List<String> pluginNameList = messageData.getPluginNameList();
+        if (pluginNameList.isEmpty()) {
+            return;
+        }
+        for (String pluginName : pluginNameList) {
+            Plugin plugin = PluginManager.loadPlugin(pluginName);
+            if (plugin == null) {
+                return;
+            }
+            MessagePlugin<MessageData> instance = plugin.instance(MessagePlugin.class);
+            if (instance == null) {
+                return;
+            }
+            instance.send(messageData);
+        }
+    }
+
     public void send(String pluginName, MessageData messageData) {
         Plugin plugin = PluginManager.loadPlugin(pluginName);
         if (plugin == null) {

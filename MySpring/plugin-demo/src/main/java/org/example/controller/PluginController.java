@@ -19,6 +19,11 @@ public class PluginController {
         this.pluginService = pluginService;
     }
 
+    @GetMapping
+    public void all(MessageData messageData) {
+        pluginService.all(messageData);
+    }
+
     @GetMapping("/{type}")
     public void send(@PathVariable String type, MessageData messageData) {
         pluginService.send(type, messageData);
