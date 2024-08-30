@@ -32,11 +32,11 @@ public class PluginService {
         for (String pluginName : pluginNameList) {
             Plugin plugin = PluginManager.loadPlugin(pluginName);
             if (plugin == null) {
-                return;
+                continue;
             }
             MessagePlugin<MessageData> instance = plugin.instance(MessagePlugin.class);
             if (instance == null) {
-                return;
+                continue;
             }
             instance.send(messageData);
         }

@@ -34,8 +34,11 @@ public class PluginManager {
     public static Plugin loadPlugin(String pluginName) {
         File pluginDirectory = new File(pluginPath + File.separator + pluginName);
         if (!pluginDirectory.exists()) {
-            log.warn("插件目录libs不存在");
-            return null;
+            boolean mkdirs = pluginDirectory.mkdirs();
+            if (!mkdirs) {
+                log.warn("创建目录失败: " + pluginDirectory.getPath());
+                return null;
+            }
         }
         File[] files = pluginDirectory.listFiles();
         if (files == null || files.length == 0) {
