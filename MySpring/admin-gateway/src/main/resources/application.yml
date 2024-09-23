@@ -1,0 +1,21 @@
+server:
+  port: 8082
+spring:
+  application:
+    name: admin-gateway
+  data:
+    redis:
+      database: 0
+      host: 192.168.0.10
+      password: root
+      timeout: 5000
+      lettuce:
+        pool:
+          max-active: 20
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1
+sign:
+  enable: false # true:开启验签; false:关闭验签
+  secret: admin@gateway # 签名密钥
+  expire: 600 # 签名的有效期，单位

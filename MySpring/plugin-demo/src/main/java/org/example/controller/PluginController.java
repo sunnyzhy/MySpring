@@ -2,6 +2,8 @@ package org.example.controller;
 
 import org.example.model.MessageData;
 import org.example.service.PluginService;
+import org.example.util.HttpUtil;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -26,6 +28,15 @@ public class PluginController {
 
     @GetMapping("/{type}")
     public void send(@PathVariable String type, MessageData messageData) {
+        HttpUtil.HttpEntityVo vo = new HttpUtil.HttpEntityVo();
+        vo.setUrl("http://20.0.0.48:8702/event/type/all");
+        vo.setMethod("get");
+        vo.getHeaders().put("tenantId","b8e83a519a41418583bd847e8b108f22");
+        vo.getHeaders().put("userId",2);
+        vo.getHeaders().put("userType",2);
+        vo.getHeaders().put("userName","admin");
+        ResponseEntity<String> request = HttpUtil.request(vo);
+        System.out.println(request.getBody());
         pluginService.send(type, messageData);
     }
 

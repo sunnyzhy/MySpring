@@ -3,15 +3,11 @@ package org.example;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-/**
- * Hello world!
- *
- */
 @SpringBootApplication
-public class PluginDemoApp
+public class AdminGatewayApp
 {
     public static void main( String[] args )
     {
-        SpringApplication.run(PluginDemoApp.class, args);
+        SpringApplication.run(AdminGatewayApp.class, args);
     }
 }

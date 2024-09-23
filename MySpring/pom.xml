@@ -23,6 +23,9 @@
     <module>plugin-admin-aliyun</module>
     <module>plugin-admin-tencent</module>
     <module>plugin-framework</module>
+    <module>admin-gateway</module>
+    <module>admin-redis</module>
+    <module>admin-json</module>
   </modules>
 
   <properties>
@@ -48,6 +51,18 @@
       <dependency>
         <groupId>org.example</groupId>
         <artifactId>plugin-admin</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.example</groupId>
+        <artifactId>admin-json</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.example</groupId>
+        <artifactId>admin-redis</artifactId>
         <version>${project.version}</version>
       </dependency>
     </dependencies>

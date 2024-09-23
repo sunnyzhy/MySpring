@@ -1,5 +1,6 @@
 package org.example.core;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
@@ -16,6 +17,8 @@ public enum ANNOTATION_ENUM {
     SERVICE("Service", Service.class, true),
     CONTROLLER("Controller", Controller.class, true),
     REST_CONTROLLER("RestController", RestController.class, true),
+    CONFIGURATION("Configuration", RestController.class, true),
+    BEAN("Bean", Bean.class, true),
     OTHER("Other", Object.class, false);
 
     private String name;

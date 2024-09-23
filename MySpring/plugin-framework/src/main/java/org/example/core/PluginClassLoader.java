@@ -3,6 +3,8 @@ package org.example.core;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
@@ -87,6 +89,12 @@ class PluginClassLoader extends URLClassLoader {
         }
         if (clazz.getAnnotation(RestController.class) != null) {
             return ANNOTATION_ENUM.REST_CONTROLLER;
+        }
+        if (clazz.getAnnotation(Configuration.class) != null) {
+            return ANNOTATION_ENUM.CONFIGURATION;
+        }
+        if (clazz.getAnnotation(Bean.class) != null) {
+            return ANNOTATION_ENUM.BEAN;
         }
         return ANNOTATION_ENUM.OTHER;
     }
